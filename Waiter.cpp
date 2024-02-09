@@ -17,39 +17,57 @@ vector<string> split(const string &);
  *  1. INTEGER_ARRAY number
  *  2. INTEGER q
  */
-bool isPrime(int n) {
-    /*
-    if(n == 0 || n == 1 ) return true;
-    */
-   for(int i = 2; i <= n/2; i++) {
-    if(n % i == 0) return false;
-   }
-   return true;
+int getNextPrime(int n)
+{
+    bool isPrime = false;
+    while(!isPrime)
+    {
+        isPrime = true;
+        ++n;
+        for(int i = 2; i <= n/2; i++) {
+            if (n % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+    }
+    return n;
 }
 
-vector<int> waiter(vector<int> number, int q) {
+vector<int> waiter(vector<int> number, int q)
+{
     vector<int> answers;
-    int iter = 0;
+    stack<int> A;
     int nextPrime = 2;
-    while(iter < q) {
-        vector<int> A;
-        if(isPrime(nextPrime)) {
-            ++iter;
-            for(int n : number) {
-                if(n % nextPrime == 0) {
-                    answers.push_back(n);
-                }
-                else {
-                    A.push_back(n);
-                }
-            }
-            number = A;
+    // First iteration
+    for(int n : number) {
+        if (n % nextPrime == 0) {
+            answers.push_back(n);
+        } else {
+            A.push(n);
         }
-        ++nextPrime;
     }
-    if(!number.empty()) {
-        answers.insert(answers.end(), number.begin(), number.end());
+    // The rest of itearions
+    int iter = 1;
+    stack<int> oldA;
+    while(!A.empty() && iter++ < q) {
+        A.swap(oldA);
+        nextPrime = getNextPrime(nextPrime);
+        while(!oldA.empty()) {
+            if (oldA.top() % nextPrime == 0) {
+                answers.push_back(oldA.top());
+            } else {
+                A.push(oldA.top());
+            }
+            oldA.pop();
+        }
     }
+    vector<int> B;
+    while(!A.empty()) {
+        B.insert(B.begin(), A.top());
+        A.pop();
+    }
+    answers.insert(answers.end(), B.begin(), B.end());
     return answers;
 }
 
@@ -71,7 +89,8 @@ int main()
 
     vector<int> number(n);
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         int number_item = stoi(number_temp[i]);
 
         number[i] = number_item;
@@ -79,10 +98,12 @@ int main()
 
     vector<int> result = waiter(number, q);
 
-    for (size_t i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++)
+    {
         cout << result[i];
 
-        if (i != result.size() - 1) {
+        if (i != result.size() - 1)
+        {
             cout << "\n";
         }
     }
@@ -92,36 +113,40 @@ int main()
     return 0;
 }
 
-
-string ltrim(const string &str) {
+string ltrim(const string &str)
+{
     string s(str);
 
     s.erase(
         s.begin(),
-        find_if(s.begin(), s.end(), [](unsigned char c) { return !ispunct(c); })
-    );
+        find_if(s.begin(), s.end(), [](unsigned char c)
+                { return !ispunct(c); }));
 
     return s;
 }
 
-string rtrim(const string &str) {
+string rtrim(const string &str)
+{
     string s(str);
 
     s.erase(
-        find_if(s.rbegin(), s.rend(), [](unsigned char c) { return !ispunct(c); }).base(),
-        s.end()
-    );
+        find_if(s.rbegin(), s.rend(), [](unsigned char c)
+                { return !ispunct(c); })
+            .base(),
+        s.end());
 
     return s;
 }
 
-vector<string> split(const string &str) {
+vector<string> split(const string &str)
+{
     vector<string> tokens;
 
     string::size_type start = 0;
     string::size_type end = 0;
 
-    while ((end = str.find(" ", start)) != string::npos) {
+    while ((end = str.find(" ", start)) != string::npos)
+    {
         tokens.push_back(str.substr(start, end - start));
 
         start = end + 1;
